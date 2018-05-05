@@ -12,15 +12,15 @@ var (
 
 func init() {
 	var err error
-	childAgeDist, err = prob.NewNormal(30, 3.5)
+	childAgeDist, err = prob.NewNormal(25, 7.5)
 	if err != nil {
 		panic(err)
 	}
-	childrenDist, err = prob.NewNormal(1.1, 1.0)
+	childrenDist, err = prob.NewNormal(1.5, 3.0)
 	if err != nil {
 		panic(err)
 	}
-	deathDist, err = prob.NewNormal(80, 1.5)
+	deathDist, err = prob.NewNormal(60, 1.5)
 	if err != nil {
 		panic(err)
 	}
@@ -75,6 +75,7 @@ func deathAge() int {
 
 func (h *Human) updateAgeRange() {
 	if !h.alive {
+		h.ageRange = "dead"
 		return
 	}
 
@@ -88,11 +89,8 @@ func (h *Human) updateAgeRange() {
 	case h.age < 18:
 		h.ageRange = "teen"
 		break
-	case h.age < 30:
-		h.ageRange = "young"
-		break
-	case h.age < 45:
-		h.ageRange = "middle-age"
+	case h.age < 50:
+		h.ageRange = "adult"
 		break
 	case h.age < 60:
 		h.ageRange = "aged"

@@ -11,7 +11,7 @@ func main() {
 
 	abm := NewABM()
 
-	humans := 100
+	humans := 1000
 
 	for i := 0; i < humans; i++ {
 		h := NewHuman()
