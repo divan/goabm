@@ -51,18 +51,26 @@ func (h *Human) Run(i int) {
 	h.age++
 	h.updateAgeRange()
 
-	rndAge := int(childAgeDist.Random())
-	if h.age == rndAge {
-		rndChildren := int(childrenDist.Random())
-		for i := 0; i < rndChildren; i++ {
+	switch h.age {
+	case firstChildAge():
+		for i := 0; i < numChilds(); i++ {
 			h.BornNewChild()
 		}
-	}
-
-	rndDeathAge := int(deathDist.Random())
-	if h.age == rndDeathAge {
+		break
+	case deathAge():
 		h.Die()
+		break
 	}
+}
+
+func firstChildAge() int {
+	return int(childAgeDist.Random())
+}
+func numChilds() int {
+	return int(childrenDist.Random())
+}
+func deathAge() int {
+	return int(deathDist.Random())
 }
 
 func (h *Human) updateAgeRange() {

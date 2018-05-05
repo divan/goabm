@@ -12,7 +12,7 @@ type UI struct {
 	alive *termui.LineChart
 }
 
-func initUI(alive <-chan float64) *UI {
+func initUI(alive <-chan report) *UI {
 	err := termui.Init()
 	if err != nil {
 		panic(err)
@@ -28,7 +28,7 @@ func initUI(alive <-chan float64) *UI {
 	go func() {
 		var data []float64
 		for c := range alive {
-			data = append(data, c)
+			data = append(data, c.alive)
 			ui.updateChart(data)
 		}
 	}()

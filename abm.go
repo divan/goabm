@@ -25,8 +25,8 @@ func (a *ABM) LimitIterations(n int) {
 	a.limit = n
 }
 
-func (a *ABM) StartSimulation() <-chan float64 {
-	ch := make(chan float64)
+func (a *ABM) StartSimulation() <-chan report {
+	ch := make(chan report)
 	go func() {
 		for i := 0; i < a.limit; i++ {
 			a.amx.RLock()
@@ -43,16 +43,23 @@ func (a *ABM) StartSimulation() <-chan float64 {
 			wg.Wait()
 
 			// collect data
-			var alive int
+			var r report
+			r.state = make(map[string]int)
 			for k := 0; k < n; k++ {
 				h := a.agents[k].(*Human)
 				if h.alive {
-					alive++
+					r.alive++
 				}
+				r.state[h.ageRange]++
 			}
-			ch <- float64(alive)
+			ch <- r
 		}
 		close(ch)
 	}()
 	return ch
+}
+
+type report struct {
+	alive float64
+	state map[string]int
 }

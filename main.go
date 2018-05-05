@@ -25,7 +25,7 @@ func main() {
 	if *noui {
 		fmt.Println("Alive")
 		for c := range ch {
-			fmt.Printf("%d, ", int(c))
+			fmt.Printf("%v, ", int(c.alive))
 		}
 	}
 	ui := initUI(ch)
