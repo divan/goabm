@@ -1,7 +1,8 @@
-package main
+package human
 
 import (
 	"github.com/atgjack/prob"
+	"github.com/divan/goabm/abm"
 )
 
 var (
@@ -20,28 +21,46 @@ func init() {
 	if err != nil {
 		panic(err)
 	}
-	deathDist, err = prob.NewNormal(60, 1.5)
+	deathDist, err = prob.NewNormal(80, 1.5)
 	if err != nil {
 		panic(err)
 	}
 }
 
 // Human implements Agent interface for human that can replicate and age.
+// Implements Agent interface.
 type Human struct {
 	age int
 
 	alive    bool
 	ageRange string
 
-	abm *ABM
+	childAge int
+	deathAge int
+
+	abm *abm.ABM
 }
 
-func NewHuman() *Human {
+// New inits new human agent.
+func New(abm *abm.ABM) abm.Agent {
 	return &Human{
 		age:      0,
 		alive:    true,
 		ageRange: "newborn",
+
+		childAge: firstChildAge(),
+		deathAge: deathAge(),
+
+		abm: abm,
 	}
+}
+
+func (h *Human) IsAlive() bool {
+	return h.alive
+}
+
+func (h *Human) Age() int {
+	return h.age
 }
 
 // Run satisfies Agent interface.
@@ -51,15 +70,12 @@ func (h *Human) Run(i int) {
 	h.age++
 	h.updateAgeRange()
 
-	switch h.age {
-	case firstChildAge():
+	if h.age == h.childAge {
 		for i := 0; i < numChilds(); i++ {
 			h.BornNewChild()
 		}
-		break
-	case deathAge():
+	} else if h.age == h.deathAge {
 		h.Die()
-		break
 	}
 }
 
@@ -104,8 +120,7 @@ func (h *Human) updateAgeRange() {
 }
 
 func (h *Human) BornNewChild() {
-	child := NewHuman()
-	child.abm = h.abm
+	child := New(h.abm)
 	h.abm.AddAgent(child)
 }
 

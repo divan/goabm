@@ -1,4 +1,4 @@
-package main
+package term
 
 import (
 	"fmt"
@@ -10,16 +10,9 @@ import (
 // UI represents UI layout.
 type UI struct {
 	alive *termui.LineChart
-
-	newborn *termui.Gauge
-	child   *termui.Gauge
-	teen    *termui.Gauge
-	adult   *termui.Gauge
-	aged    *termui.Gauge
-	old     *termui.Gauge
 }
 
-func initUI(alive <-chan report) *UI {
+func NewUI(alive <-chan int) *UI {
 	err := termui.Init()
 	if err != nil {
 		panic(err)
@@ -35,15 +28,15 @@ func initUI(alive <-chan report) *UI {
 	go func() {
 		var data []float64
 		for c := range alive {
-			data = append(data, c.alive)
-			ui.updateChart(data, c.state)
+			data = append(data, float64(c))
+			ui.updateChart(data)
 		}
 	}()
 
 	return ui
 }
 
-func stopUI() {
+func StopUI() {
 	termui.Close()
 }
 
@@ -52,34 +45,15 @@ func (ui *UI) createCharts() {
 	lc := termui.NewLineChart()
 	lc.BorderLabel = "Humans Alive"
 	lc.Data = []float64{}
-	lc.Height = termui.TermHeight() - 3*3
+	lc.Height = termui.TermHeight()
 	lc.AxesColor = termui.ColorWhite
 	lc.LineColor = termui.ColorYellow | termui.AttrBold
 
 	ui.alive = lc
-
-	ui.newborn = newGauge("Newborn")
-	ui.child = newGauge("Child")
-	ui.teen = newGauge("Teen")
-	ui.adult = newGauge("Adult")
-	ui.aged = newGauge("Aged")
-	ui.old = newGauge("Old")
 }
 
 func (ui *UI) createLayout() {
 	termui.Body.AddRows(
-		termui.NewRow(
-			termui.NewCol(6, 0, ui.newborn),
-			termui.NewCol(6, 0, ui.child),
-		),
-		termui.NewRow(
-			termui.NewCol(6, 0, ui.teen),
-			termui.NewCol(6, 0, ui.adult),
-		),
-		termui.NewRow(
-			termui.NewCol(6, 0, ui.aged),
-			termui.NewCol(6, 0, ui.old),
-		),
 		termui.NewRow(
 			termui.NewCol(12, 0, ui.alive),
 		),
@@ -93,16 +67,8 @@ func (ui *UI) Render() {
 	termui.Render(termui.Body)
 }
 
-func (ui *UI) updateChart(data []float64, state map[string]int) {
+func (ui *UI) updateChart(data []float64) {
 	ui.alive.Data = data
-
-	total := float64(state["newborn"]+state["child"]+state["young"]+state["adult"]+state["aged"]+state["old"]) / 6
-	ui.newborn.Percent = int(float64(state["newborn"]) * 100.0 / total)
-	ui.child.Percent = int(float64(state["child"]) * 100.0 / total)
-	ui.teen.Percent = int(float64(state["teen"]) * 100.0 / total)
-	ui.adult.Percent = int(float64(state["adult"]) * 100.0 / total)
-	ui.aged.Percent = int(float64(state["aged"]) * 100.0 / total)
-	ui.old.Percent = int(float64(state["old"]) * 100.0 / total)
 
 	ui.Render()
 }
