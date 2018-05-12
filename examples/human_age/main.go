@@ -1,16 +1,12 @@
 package main
 
 import (
-	"flag"
-
 	"github.com/divan/goabm/abm"
 	"github.com/divan/goabm/models/human"
 	"github.com/divan/goabm/ui/term"
 )
 
 func main() {
-	flag.Parse()
-
 	a := abm.New()
 
 	a.AddAgents(human.New, 100)

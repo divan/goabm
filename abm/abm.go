@@ -10,11 +10,22 @@ type ABM struct {
 
 	limit int
 
+	world      World
 	reportFunc func(*ABM)
 }
 
 func New() *ABM {
 	return &ABM{}
+}
+
+func (a *ABM) SetWorld(w World) {
+	if a.world == nil {
+		a.world = w
+	}
+}
+
+func (a *ABM) World() World {
+	return a.world
 }
 
 func (a *ABM) SetReportFunc(fn func(*ABM)) {
@@ -28,12 +39,10 @@ func (a *ABM) AddAgent(agent Agent) {
 }
 
 func (a *ABM) AddAgents(spawnFunc func(*ABM) Agent, n int) {
-	a.mx.Lock()
 	for i := 0; i < n; i++ {
 		agent := spawnFunc(a)
-		a.agents = append(a.agents, agent)
+		a.AddAgent(agent)
 	}
-	a.mx.Unlock()
 }
 
 func (a *ABM) LimitIterations(n int) {
@@ -44,12 +53,16 @@ func (a *ABM) LimitIterations(n int) {
 
 func (a *ABM) Limit() int {
 	a.mx.RLock()
-	a.mx.RUnlock()
+	defer a.mx.RUnlock()
 	return a.limit
 }
 
 func (a *ABM) StartSimulation() {
 	for i := 0; i < a.Limit(); i++ {
+		if a.World() != nil {
+			a.World().Tick()
+		}
+
 		var wg sync.WaitGroup
 		for j := 0; j < a.AgentsCount(); j++ {
 			wg.Add(1)
