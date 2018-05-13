@@ -41,7 +41,26 @@ func (g *Grid) Tick() {
 	}
 }
 
+func (g *Grid) Move(fromX, fromY, toX, toY int) error {
+	if err := g.validateXY(fromX, fromY); err != nil {
+		return err
+	}
+	if err := g.validateXY(toX, toY); err != nil {
+		return err
+	}
+	g.mx.Lock()
+	defer g.mx.Unlock()
+
+	agent := g.cells[fromY][fromX]
+	g.cells[toY][toX] = agent
+	//g.cells[fromY][fromX] = nil
+	return nil
+}
+
 func copyAgent(src abm.Agent) abm.Agent {
+	if src == nil {
+		return nil
+	}
 	typ := reflect.TypeOf(src)
 	val := reflect.ValueOf(src)
 	if typ.Kind() == reflect.Ptr {
