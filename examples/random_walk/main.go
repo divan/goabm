@@ -1,6 +1,8 @@
 package main
 
 import (
+	"fmt"
+	"math"
 	"math/rand"
 	"syscall"
 	"time"
@@ -13,8 +15,19 @@ import (
 
 // Walker implements abm.Agent
 type Walker struct {
-	x, y int
-	abm  *abm.ABM
+	x, y         int
+	origx, origy int
+	abm          *abm.ABM
+}
+
+func NewWalker(abm *abm.ABM, x, y int) *Walker {
+	return &Walker{
+		origx: x,
+		origy: y,
+		x:     x,
+		y:     y,
+		abm:   abm,
+	}
 }
 
 func (w *Walker) Run(i int) {
@@ -33,6 +46,10 @@ func (w *Walker) Run(i int) {
 	w.abm.World().(*grid.Grid).Move(oldx, oldy, w.x, w.y)
 }
 
+func (w *Walker) Distance() float64 {
+	return math.Sqrt(math.Abs(float64(w.origx-w.x)) + math.Abs(float64(w.origy-w.y)))
+}
+
 func main() {
 	rand.Seed(time.Now().UnixNano())
 	a := abm.New()
@@ -40,11 +57,9 @@ func main() {
 	grid2D := grid.New(w, h)
 	a.SetWorld(grid2D)
 
-	for i := 0; i < 1; i++ {
-		cell := &Walker{rand.Intn(w - 1), rand.Intn(h - 1), a}
-		a.AddAgent(cell)
-		grid2D.SetCell(cell.x, cell.y, cell)
-	}
+	cell := NewWalker(a, rand.Intn(w-1), rand.Intn(h-1))
+	a.AddAgent(cell)
+	grid2D.SetCell(cell.x, cell.y, cell)
 
 	a.LimitIterations(1000)
 
@@ -57,6 +72,7 @@ func main() {
 	go func() {
 		a.StartSimulation()
 		close(ch)
+		fmt.Println("Distance", cell.Distance())
 	}()
 
 	ui := termgrid.New(w, h, ch)
