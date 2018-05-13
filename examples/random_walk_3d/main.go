@@ -30,7 +30,7 @@ func NewWalker(abm *abm.ABM, x, y, z int) *Walker {
 
 func (w *Walker) Run(i int) {
 	rx := rand.Intn(6)
-	oldx, oldy, oldz := w.x, w.y, w.z
+	//	oldx, oldy, oldz := w.x, w.y, w.z
 	switch rx {
 	case 0:
 		w.x++
@@ -45,7 +45,7 @@ func (w *Walker) Run(i int) {
 	case 5:
 		w.z--
 	}
-	w.abm.World().(*grid.Grid).Move(oldx, oldy, oldz, w.x, w.y, w.z)
+	//w.abm.World().(*grid.Grid).Move(oldx, oldy, oldz, w.x, w.y, w.z)
 }
 
 func main() {
@@ -53,13 +53,13 @@ func main() {
 	a := abm.New()
 	w, h, d := 100, 100, 100
 	g := grid.New(w, h, d)
-	a.SetWorld(g)
+	//a.SetWorld(g)
 
 	cell := NewWalker(a, 50, 50, 50)
 	a.AddAgent(cell)
 	g.SetCell(cell.x, cell.y, cell.z, cell)
 
-	a.LimitIterations(2000)
+	a.LimitIterations(1000000)
 
 	ch := make(chan ui.Coord)
 	a.SetReportFunc(func(a *abm.ABM) {
@@ -71,6 +71,7 @@ func main() {
 	})
 
 	go func() {
+		time.Sleep(5 * time.Second)
 		a.StartSimulation()
 		close(ch)
 	}()

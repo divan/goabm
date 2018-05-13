@@ -2,22 +2,9 @@
 var Stats = require('stats-js');
 const dat = require('dat.gui');
 
-
 // WebGL
 let canvas = document.getElementById("preview");
 var renderer = new THREE.WebGLRenderer({ canvas: canvas });
-
-var data;
-function addData(data) {
-	data = data;
-    let geometry = new THREE.SphereGeometry( 0.5, 1, 1 );
-    let material = new THREE.MeshStandardMaterial({ color: '#00ff00' });
-    let sphere1 = new THREE.Mesh( geometry, material );
-    scene.add( sphere1 );
-    sphere1.position.set(data.X, data.Y, data.Z);
-}
-
-module.exports = { addData };
 
 // Setup scene
 const scene = new THREE.Scene();
@@ -27,9 +14,6 @@ scene.background = new THREE.Color(0x000011);
 scene.add(new THREE.AmbientLight(0xbbbbbb));
 scene.add(new THREE.DirectionalLight(0xffffff, 0.6));
 
-var nodesGroup = new THREE.Group();
-scene.add(nodesGroup);
-
 // Helpers
 var box = new THREE.Box3();
 box.setFromCenterAndSize( new THREE.Vector3( 50, 50, 50 ), new THREE.Vector3( 100, 100, 100 ) );
@@ -38,8 +22,8 @@ var helper = new THREE.Box3Helper( box, 0xffff00 );
 scene.add( helper );
 
 // Setup camera
-var camera = new THREE.PerspectiveCamera();
-camera.far = 400000;
+var camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 1, 1000);
+camera.position.set(0, 0, 500);
 
 var tbControls = new THREE.TrackballControls(camera, renderer.domElement);
 var flyControls = new THREE.FlyControls(camera, renderer.domElement);
@@ -68,6 +52,33 @@ stats.domElement.style.bottom = '20px';
 
 // Dat GUI
 const gui = new dat.GUI();
+
+// Objects
+var geometry = new THREE.BufferGeometry();
+var MAX_POINTS = 100*100*100;
+positions = new Float32Array(MAX_POINTS * 3);
+geometry.addAttribute('position', new THREE.BufferAttribute(positions, 3));
+
+var material = new THREE.LineBasicMaterial({
+    color: 0x22ff22,
+    transparency: true,
+    opacity: 0.5,
+    linewidth: 2
+});
+line = new THREE.Line(geometry, material);
+scene.add(line);
+
+var count = 0;
+function addData(data) {
+    positions[count * 3 + 0] = data.X;
+    positions[count * 3 + 1] = data.Y;
+    positions[count * 3 + 2] = data.Z;
+    count++;
+    console.log(count, data.X, data.Y, data.Z);
+    line.geometry.setDrawRange(0, count);
+    line.geometry.attributes.position.needsUpdate = true;
+}
+module.exports = { addData };
 
 function resizeCanvas() {
     if (width && height) {
