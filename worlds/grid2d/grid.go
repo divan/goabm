@@ -2,7 +2,6 @@ package grid
 
 import (
 	"errors"
-	"reflect"
 	"sync"
 
 	"github.com/divan/goabm/abm"
@@ -12,9 +11,7 @@ type Grid struct {
 	mx            sync.RWMutex
 	width, height int
 
-	cells, cellsPrev [][]abm.Agent
-
-	nmx sync.RWMutex
+	cells, cellsPrev []abm.Agent
 }
 
 func New(width, height int) *Grid {
@@ -34,11 +31,7 @@ func (g *Grid) Tick() {
 	g.mx.RLock()
 	defer g.mx.RUnlock()
 
-	for i := 0; i < g.width; i++ {
-		for j := 0; j < g.height; j++ {
-			g.cellsPrev[j][i] = copyAgent(g.cells[j][i])
-		}
-	}
+	g.cellsPrev = append([]abm.Agent{}, g.cells...)
 }
 
 func (g *Grid) Move(fromX, fromY, toX, toY int) error {
@@ -51,25 +44,10 @@ func (g *Grid) Move(fromX, fromY, toX, toY int) error {
 	g.mx.Lock()
 	defer g.mx.Unlock()
 
-	agent := g.cells[fromY][fromX]
-	g.cells[toY][toX] = agent
+	agent := g.cells[g.idx(fromX, fromY)]
+	g.cells[g.idx(toX, toY)] = agent
 	//g.cells[fromY][fromX] = nil
 	return nil
-}
-
-func copyAgent(src abm.Agent) abm.Agent {
-	if src == nil {
-		return nil
-	}
-	typ := reflect.TypeOf(src)
-	val := reflect.ValueOf(src)
-	if typ.Kind() == reflect.Ptr {
-		typ = typ.Elem()
-		val = val.Elem()
-	}
-	elem := reflect.New(typ).Elem()
-	elem.Set(val)
-	return elem.Addr().Interface().(abm.Agent)
 }
 
 func (g *Grid) Cell(x, y int) abm.Agent {
@@ -78,7 +56,7 @@ func (g *Grid) Cell(x, y int) abm.Agent {
 	}
 	g.mx.RLock()
 	defer g.mx.RUnlock()
-	return g.cellsPrev[y][x]
+	return g.cellsPrev[g.idx(x, y)]
 }
 
 func (g *Grid) SetCell(x, y int, c abm.Agent) {
@@ -86,7 +64,7 @@ func (g *Grid) SetCell(x, y int, c abm.Agent) {
 		panic(err)
 	}
 	g.mx.Lock()
-	g.cells[y][x] = c
+	g.cells[g.idx(x, y)] = c
 	g.mx.Unlock()
 }
 
@@ -126,7 +104,7 @@ func (g *Grid) Dump(fn func(c abm.Agent) bool) [][]bool {
 	for i := 0; i < g.height; i++ {
 		ret[i] = make([]bool, g.width)
 		for j := 0; j < g.width; j++ {
-			a := g.cells[i][j]
+			a := g.cells[g.idx(j, i)]
 			ret[i][j] = fn(a)
 		}
 	}
@@ -135,10 +113,14 @@ func (g *Grid) Dump(fn func(c abm.Agent) bool) [][]bool {
 
 // just move this verbose initialization here for brevity.
 func (g *Grid) initSlices() {
-	g.cells = make([][]abm.Agent, g.height)
-	g.cellsPrev = make([][]abm.Agent, g.height)
-	for i := 0; i < g.height; i++ {
-		g.cells[i] = make([]abm.Agent, g.width)
-		g.cellsPrev[i] = make([]abm.Agent, g.width)
-	}
+	g.cells = make([]abm.Agent, g.size())
+	g.cellsPrev = make([]abm.Agent, g.size())
+}
+
+func (g *Grid) size() int {
+	return g.height * g.width
+}
+
+func (g *Grid) idx(x, y int) int {
+	return y*g.width + x
 }

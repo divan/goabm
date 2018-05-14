@@ -21,8 +21,8 @@ var helper = new THREE.Box3Helper( box, 0xffff00 );
 scene.add( helper );
 
 // Setup camera
-var camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 1, 1000);
-camera.position.set(0, 0, 500);
+var camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 1, 2000);
+camera.position.set(50, 50, 200);
 
 var tbControls = new THREE.TrackballControls(camera, renderer.domElement);
 var flyControls = new THREE.FlyControls(camera, renderer.domElement);

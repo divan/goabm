@@ -20,7 +20,6 @@ func TestTick(t *testing.T) {
 		So(g.Cell(50, 50), ShouldBeNil)
 		g.Tick()
 		So(g.Cell(50, 50), ShouldEqual, a)
-		So(g.cells[50][50], ShouldEqual, a)
 	})
 }
 

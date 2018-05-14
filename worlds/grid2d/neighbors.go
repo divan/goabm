@@ -18,8 +18,8 @@ func (g *Grid) CountNeighbors(x, y int, fn func(a abm.Agent) bool) int {
 	if g.validateXY(x, y) != nil {
 		return 0
 	}
-	g.nmx.RLock()
-	defer g.nmx.RUnlock()
+	g.mx.RLock()
+	defer g.mx.RUnlock()
 
 	var count int
 	// assuming Moore neigborhood for now
@@ -46,49 +46,49 @@ func (g *Grid) left(x, y int) abm.Agent {
 	if x == 0 {
 		return nil
 	}
-	return g.cellsPrev[y][x-1]
+	return g.cellsPrev[g.idx(x-1, y)]
 }
 func (g *Grid) right(x, y int) abm.Agent {
 	if x >= g.width-1 {
 		return nil
 	}
-	return g.cellsPrev[y][x+1]
+	return g.cellsPrev[g.idx(x+1, y)]
 }
 func (g *Grid) top(x, y int) abm.Agent {
 	if y == 0 {
 		return nil
 	}
-	return g.cellsPrev[y-1][x]
+	return g.cellsPrev[g.idx(x, y-1)]
 }
 func (g *Grid) bottom(x, y int) abm.Agent {
 	if y >= g.height-1 {
 		return nil
 	}
-	return g.cellsPrev[y+1][x]
+	return g.cellsPrev[g.idx(x, y+1)]
 }
 func (g *Grid) topLeft(x, y int) abm.Agent {
 	if y == 0 || x == 0 {
 		return nil
 	}
-	return g.cellsPrev[y-1][x-1]
+	return g.cellsPrev[g.idx(x-1, y-1)]
 }
 func (g *Grid) bottomLeft(x, y int) abm.Agent {
 	if y >= g.height-1 || x == 0 {
 		return nil
 	}
-	return g.cellsPrev[y+1][x-1]
+	return g.cellsPrev[g.idx(x-1, y+1)]
 }
 func (g *Grid) topRight(x, y int) abm.Agent {
 	if y == 0 || x >= g.width-1 {
 		return nil
 	}
-	return g.cellsPrev[y-1][x+1]
+	return g.cellsPrev[g.idx(x+1, y-1)]
 }
 func (g *Grid) bottomRight(x, y int) abm.Agent {
 	if y >= g.height-1 || x >= g.width-1 {
 		return nil
 	}
-	return g.cellsPrev[y+1][x+1]
+	return g.cellsPrev[g.idx(x+1, y+1)]
 }
 
 func (g *Grid) PrintNeighbors(fn func(a abm.Agent) bool) {

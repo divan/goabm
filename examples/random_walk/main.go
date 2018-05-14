@@ -66,7 +66,6 @@ func main() {
 	ch := make(chan [][]bool)
 	a.SetReportFunc(func(a *abm.ABM) {
 		ch <- grid2D.Dump(func(a abm.Agent) bool { return a != nil })
-		time.Sleep(10 * time.Millisecond)
 	})
 
 	go func() {
