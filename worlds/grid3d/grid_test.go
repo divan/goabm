@@ -1,11 +1,18 @@
 package grid
 
-import ()
+import "testing"
 
 // TestAgent implements abm.Agent interface for tests.
 type TestAgent struct{}
 
 func (*TestAgent) Run(i int) {}
+
+func BenchmarkTick(b *testing.B) {
+	g := New(100, 100, 100)
+	for i := 0; i < b.N; i++ {
+		g.Tick()
+	}
+}
 
 /*
 func TestGrid(t *testing.T) {
