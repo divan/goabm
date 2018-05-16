@@ -31,17 +31,21 @@ func TestBlinker(t *testing.T) {
 			}
 		}
 
-		g.Tick()
 		PrintDump(g.Dump(IsAlive), 5, 5)
 		a.LimitIterations(1)
 		a.StartSimulation()
-
-		So(g.Cell(1, 2), ShouldBeNil)
-		So(g.Cell(2, 1), ShouldNotBeNil)
-		So(g.Cell(2, 2), ShouldNotBeNil)
-		So(g.Cell(2, 3), ShouldNotBeNil)
-		So(g.Cell(3, 2), ShouldBeNil)
 		PrintDump(g.Dump(IsAlive), 5, 5)
+
+		expectedAlive := []struct{ x, y int }{{2, 1}, {2, 2}, {2, 3}}
+		for i := 0; i < 5; i++ {
+			for j := 0; j < 5; j++ {
+				for _, alive := range expectedAlive {
+					if i == alive.x && j == alive.y {
+						So(g.Cell(i, j).(*Cell).IsAlive(), ShouldBeTrue)
+					}
+				}
+			}
+		}
 	})
 }
 

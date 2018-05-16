@@ -31,7 +31,10 @@ func (g *Grid) Tick() {
 	g.mx.RLock()
 	defer g.mx.RUnlock()
 
-	g.cellsPrev = append([]abm.Agent{}, g.cells...)
+	for i := 0; i < g.size(); i++ {
+		g.cellsPrev[i] = abm.CopyAgent(g.cells[i])
+	}
+
 }
 
 func (g *Grid) Move(fromX, fromY, toX, toY int) error {
@@ -56,7 +59,7 @@ func (g *Grid) Cell(x, y int) abm.Agent {
 	}
 	g.mx.RLock()
 	defer g.mx.RUnlock()
-	return g.cellsPrev[g.idx(x, y)]
+	return g.cells[g.idx(x, y)]
 }
 
 func (g *Grid) SetCell(x, y int, c abm.Agent) {
@@ -100,11 +103,11 @@ func (g *Grid) Dump(fn func(c abm.Agent) bool) [][]bool {
 	g.mx.RLock()
 	defer g.mx.RUnlock()
 
-	var ret = make([][]bool, g.height)
-	for i := 0; i < g.height; i++ {
-		ret[i] = make([]bool, g.width)
-		for j := 0; j < g.width; j++ {
-			a := g.cells[g.idx(j, i)]
+	var ret = make([][]bool, g.width)
+	for i := 0; i < g.width; i++ {
+		ret[i] = make([]bool, g.height)
+		for j := 0; j < g.height; j++ {
+			a := g.cells[g.idx(i, j)]
 			ret[i][j] = fn(a)
 		}
 	}

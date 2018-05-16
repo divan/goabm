@@ -17,7 +17,7 @@ func TestTick(t *testing.T) {
 
 		So(g.Cell(50, 50), ShouldBeNil)
 		g.SetCell(50, 50, a)
-		So(g.Cell(50, 50), ShouldBeNil)
+		So(g.Cell(50, 50), ShouldNotBeNil)
 		g.Tick()
 		So(g.Cell(50, 50), ShouldEqual, a)
 	})

@@ -25,7 +25,7 @@ func (ui *UI) Loop() {
 		}
 		for i := 0; i < ui.Height; i++ {
 			for j := 0; j < ui.Width; j++ {
-				if dump[i][j] {
+				if dump[j][i] {
 					fmt.Printf("*")
 				} else {
 					fmt.Printf(" ")
