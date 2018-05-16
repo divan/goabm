@@ -1,63 +1,62 @@
 package term
 
 import (
-	"fmt"
-	"time"
-
+	"github.com/divan/goabm/ui"
 	"github.com/gizak/termui"
 )
 
-// UI represents UI layout.
+// UI represents UI layout. Implements ui.UI, ui.Charts, ui.Grid
 type UI struct {
-	alive *termui.LineChart
+	charts []*termui.LineChart
 }
 
-func NewUI(alive <-chan int) *UI {
+var _ ui.UI = &UI{}
+var _ ui.Charts = &UI{}
+
+func NewUI() *UI {
 	err := termui.Init()
 	if err != nil {
 		panic(err)
 	}
 
 	ui := &UI{}
-	ui.createCharts()
-	ui.createLayout()
 
+	ui.handleKeys()
 	ui.Align()
 	ui.Render()
-
-	go func() {
-		var data []float64
-		for c := range alive {
-			data = append(data, float64(c))
-			ui.updateChart(data)
-		}
-	}()
 
 	return ui
 }
 
-func StopUI() {
+// Stop shuts down terminal graphics. Implements ui.UI.
+func (*UI) Stop() {
 	termui.Close()
 }
 
-func (ui *UI) createCharts() {
-	// alive
+// AddChart adds new chart to ui. Implements ui.Chart.
+func (ui *UI) AddChart(name string, values <-chan float64) {
 	lc := termui.NewLineChart()
-	lc.BorderLabel = "Humans Alive"
+	lc.BorderLabel = name
 	lc.Data = []float64{}
 	lc.Height = termui.TermHeight()
 	lc.AxesColor = termui.ColorWhite
 	lc.LineColor = termui.ColorYellow | termui.AttrBold
 
-	ui.alive = lc
+	ui.charts = append(ui.charts, lc)
+	ui.createLayout()
+
+	go ui.updateChartData(lc, values)
 }
 
 func (ui *UI) createLayout() {
-	termui.Body.AddRows(
-		termui.NewRow(
-			termui.NewCol(12, 0, ui.alive),
-		),
-	)
+	var rows []*termui.Row
+	for _, chart := range ui.charts {
+		row := termui.NewRow(
+			termui.NewCol(12, 0, chart),
+		)
+		rows = append(rows, row)
+	}
+	termui.Body.AddRows(rows...)
 }
 
 // Render rerenders UI.
@@ -67,23 +66,21 @@ func (ui *UI) Render() {
 	termui.Render(termui.Body)
 }
 
-func (ui *UI) updateChart(data []float64) {
-	ui.alive.Data = data
-
-	ui.Render()
+func (ui *UI) updateChartData(chart *termui.LineChart, values <-chan float64) {
+	var data []float64
+	for c := range values {
+		// TODO: use circular buffer to evict old data
+		data = append(data, float64(c))
+		chart.Data = data
+		ui.Render()
+	}
 }
 
-func (ui *UI) HandleKeys() {
+func (ui *UI) handleKeys() {
 	// handle key q pressing
 	termui.Handle("/sys/kbd/q", func(termui.Event) {
 		termui.StopLoop()
 	})
-}
-
-// AddTimer adds handler for repeatable functions that interact with UI.
-func (ui *UI) AddTimer(d time.Duration, fn func(e termui.Event)) {
-	durationStr := fmt.Sprintf("/timer/%s", d)
-	termui.Handle(durationStr, fn)
 }
 
 // Loop starts event loop and blocks.
@@ -94,16 +91,4 @@ func (ui *UI) Loop() {
 // Align recalculates layout and aligns widgets.
 func (ui *UI) Align() {
 	termui.Body.Align()
-}
-
-func newGauge(text string) *termui.Gauge {
-	g := termui.NewGauge()
-	g.Percent = 0
-	g.Width = termui.TermWidth()
-	g.Height = 3
-	g.BorderLabel = text
-	g.BarColor = termui.ColorRed
-	g.BorderFg = termui.ColorWhite
-	g.BorderLabelFg = termui.ColorCyan
-	return g
 }

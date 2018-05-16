@@ -8,25 +8,24 @@ import (
 
 func main() {
 	a := abm.New()
-
 	a.AddAgents(human.New, 100)
 
 	a.LimitIterations(1000)
 
-	alivesCh := make(chan int)
+	alivesCh := make(chan float64)
 	a.SetReportFunc(func(a *abm.ABM) {
 		alive := a.Count(func(agent abm.Agent) bool {
 			h := agent.(*human.Human)
 			return h.IsAlive()
 		})
-		alivesCh <- alive
+		alivesCh <- float64(alive)
 	})
 
 	go a.StartSimulation()
 
-	ui := term.NewUI(alivesCh)
-	defer term.StopUI()
+	ui := term.NewUI()
+	defer ui.Stop()
 
-	ui.HandleKeys()
+	ui.AddChart("Humans Alive", alivesCh)
 	ui.Loop()
 }
