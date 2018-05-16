@@ -36,6 +36,11 @@ func TestBlinker(t *testing.T) {
 		a.LimitIterations(1)
 		a.StartSimulation()
 
+		So(g.Cell(1, 2), ShouldBeNil)
+		So(g.Cell(2, 1), ShouldNotBeNil)
+		So(g.Cell(2, 2), ShouldNotBeNil)
+		So(g.Cell(2, 3), ShouldNotBeNil)
+		So(g.Cell(3, 2), ShouldBeNil)
 		PrintDump(g.Dump(IsAlive), 5, 5)
 	})
 }
