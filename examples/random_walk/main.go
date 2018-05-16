@@ -1,8 +1,6 @@
 package main
 
 import (
-	"fmt"
-	"math"
 	"math/rand"
 	"syscall"
 	"time"
@@ -46,10 +44,6 @@ func (w *Walker) Run(i int) {
 	w.abm.World().(*grid.Grid).Move(oldx, oldy, w.x, w.y)
 }
 
-func (w *Walker) Distance() float64 {
-	return math.Sqrt(math.Abs(float64(w.origx-w.x)) + math.Abs(float64(w.origy-w.y)))
-}
-
 func main() {
 	rand.Seed(time.Now().UnixNano())
 	a := abm.New()
@@ -71,7 +65,6 @@ func main() {
 	go func() {
 		a.StartSimulation()
 		close(ch)
-		fmt.Println("Distance", cell.Distance())
 	}()
 
 	ui := termgrid.New(w, h, ch)
