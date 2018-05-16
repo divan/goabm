@@ -57,7 +57,7 @@ func main() {
 
 	a.LimitIterations(1000)
 
-	ch := make(chan [][]bool)
+	ch := make(chan [][]interface{})
 	a.SetReportFunc(func(a *abm.ABM) {
 		ch <- grid2D.Dump(func(a abm.Agent) bool { return a != nil })
 	})
@@ -67,8 +67,9 @@ func main() {
 		close(ch)
 	}()
 
-	ui := termgrid.New(w, h, ch)
+	ui := termgrid.New()
 	defer ui.Stop()
+	ui.AddGrid(ch)
 	ui.Loop()
 }
 
