@@ -4,9 +4,7 @@ import (
 	"bufio"
 	"math/rand"
 	"os"
-	"syscall"
 	"time"
-	"unsafe"
 
 	"github.com/divan/goabm/abm"
 	"github.com/divan/goabm/models/conway_life"
@@ -17,10 +15,11 @@ import (
 func main() {
 	rand.Seed(time.Now().UnixNano())
 	a := abm.New()
-	w, h := getTermSize()
+	w, h := termSize()
 	grid2D := grid.New(w, h)
 	a.SetWorld(grid2D)
 
+	// populate grid randomly
 	for x := 0; x < w; x++ {
 		for y := 0; y < h; y++ {
 			alive := rand.Float64() > 0.5
@@ -32,11 +31,10 @@ func main() {
 
 	a.LimitIterations(1000)
 
-	ch := make(chan [][]bool)
+	ch := make(chan [][]interface{})
 	a.SetReportFunc(func(a *abm.ABM) {
 		ch <- grid2D.Dump(life.IsAlive)
-		b, _ := bufio.NewReader(os.Stdin).ReadBytes('\n')
-		if len(b) > 1 && string(b[0]) == "q" {
+		if waitForEnter() {
 			close(ch)
 		}
 	})
@@ -46,27 +44,13 @@ func main() {
 		close(ch)
 	}()
 
-	ui := termgrid.New(w, h, ch)
+	ui := termgrid.New()
 	defer ui.Stop()
+	ui.AddGrid(ch)
 	ui.Loop()
 }
 
-type winsize struct {
-	Row    uint16
-	Col    uint16
-	Xpixel uint16
-	Ypixel uint16
-}
-
-func getTermSize() (int, int) {
-	ws := &winsize{}
-	retCode, _, errno := syscall.Syscall(syscall.SYS_IOCTL,
-		uintptr(syscall.Stdin),
-		uintptr(syscall.TIOCGWINSZ),
-		uintptr(unsafe.Pointer(ws)))
-
-	if int(retCode) == -1 {
-		panic(errno)
-	}
-	return int(ws.Col) - 1, int(ws.Row) - 1
+func waitForEnter() bool {
+	b, _ := bufio.NewReader(os.Stdin).ReadBytes('\n')
+	return len(b) > 1 && string(b[0]) == "q"
 }

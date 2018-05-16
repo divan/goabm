@@ -99,13 +99,13 @@ func (g *Grid) validateXY(x, y int) error {
 	return nil
 }
 
-func (g *Grid) Dump(fn func(c abm.Agent) bool) [][]bool {
+func (g *Grid) Dump(fn func(c abm.Agent) bool) [][]interface{} {
 	g.mx.RLock()
 	defer g.mx.RUnlock()
 
-	var ret = make([][]bool, g.width)
+	var ret = make([][]interface{}, g.width)
 	for i := 0; i < g.width; i++ {
-		ret[i] = make([]bool, g.height)
+		ret[i] = make([]interface{}, g.height)
 		for j := 0; j < g.height; j++ {
 			a := g.cells[g.idx(i, j)]
 			ret[i][j] = fn(a)
