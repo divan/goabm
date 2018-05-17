@@ -58,24 +58,23 @@ var MAX_POINTS = 100*100*100;
 positions = new Float32Array(MAX_POINTS * 3);
 geometry.addAttribute('position', new THREE.BufferAttribute(positions, 3));
 
-var material = new THREE.LineBasicMaterial({
-    color: 0x22ff22,
-    transparency: true,
-    opacity: 0.5,
-    linewidth: 2
-});
-line = new THREE.Line(geometry, material);
-scene.add(line);
+var pMaterial = new THREE.PointsMaterial({
+      color: 0xFFFFFF,
+      size: 2
+    });
 
-var count = 0;
+var particleSystem = new THREE.Points( geometry, pMaterial);
+scene.add(particleSystem);
+
 function addData(data) {
-    positions[count * 3 + 0] = data.X;
-    positions[count * 3 + 1] = data.Y;
-    positions[count * 3 + 2] = data.Z;
-    count++;
-    console.log(count, data.X, data.Y, data.Z);
-    line.geometry.setDrawRange(0, count);
-    line.geometry.attributes.position.needsUpdate = true;
+    let positions = particleSystem.geometry.attributes.position.array;
+    for (var i = 0; i < data.length; i++) {
+        positions[i * 3 + 0] = data[i].X;
+        positions[i * 3 + 1] = data[i].Y;
+        positions[i * 3 + 2] = data[i].Z;
+    }
+    particleSystem.geometry.setDrawRange(0, data.length);
+    particleSystem.geometry.attributes.position.needsUpdate = true;
 }
 module.exports = { addData };
 

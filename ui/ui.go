@@ -15,5 +15,5 @@ type Grid interface {
 }
 
 type Grid3D interface {
-	Add3DGrid(<-chan [][][]interface{})
+	AddGrid3D(<-chan []interface{})
 }

@@ -16,6 +16,11 @@ type Grid struct {
 	nmx sync.RWMutex
 }
 
+type Point struct {
+	X, Y, Z int
+	Color   int
+}
+
 func New(width, height, depth int) *Grid {
 	g := &Grid{
 		width:  width,
@@ -109,13 +114,40 @@ func (g *Grid) validateXYZ(x, y, z int) error {
 	return nil
 }
 
-func (g *Grid) Dump(fn func(c abm.Agent) bool) []bool {
+func (g *Grid) DumpFull(fn func(c abm.Agent) bool) [][][]interface{} {
 	g.mx.RLock()
 	defer g.mx.RUnlock()
 
-	var ret = make([]bool, g.size())
+	var ret = make([][][]interface{}, g.width)
+	for i := 0; i < g.width; i++ {
+		ret[i] = make([][]interface{}, g.height)
+		for j := 0; j < g.height; j++ {
+			ret[i][j] = make([]interface{}, g.depth)
+			for k := 0; k < g.depth; k++ {
+				a := g.cells[g.idx(i, j, k)]
+				ret[i][j][k] = fn(a)
+			}
+		}
+	}
+	return ret
+}
+
+func (g *Grid) Dump(fn func(c abm.Agent) bool) []interface{} {
+	g.mx.RLock()
+	defer g.mx.RUnlock()
+
+	var ret = make([]interface{}, 0, g.size())
 	for i := 0; i < g.size(); i++ {
-		ret[i] = fn(g.cells[i])
+		a := g.cells[i]
+		if fn(a) {
+			x, y, z := g.xyz(i)
+			point := Point{
+				X: x,
+				Y: y,
+				Z: z,
+			}
+			ret = append(ret, point)
+		}
 	}
 	return ret
 }
@@ -126,6 +158,14 @@ func (g *Grid) size() int {
 
 func (g *Grid) idx(x, y, z int) int {
 	return z*g.width*g.height + y*g.height + x
+}
+
+func (g *Grid) xyz(idx int) (int, int, int) {
+	z := idx / (g.height * g.width)
+	w := idx % (g.height * g.width)
+	y := w / g.depth
+	x := w % g.depth
+	return x, y, z
 }
 
 // just move this verbose initialization here for brevity.

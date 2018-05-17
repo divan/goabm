@@ -2,6 +2,8 @@ package ui
 
 import (
 	"log"
+
+	"github.com/divan/goabm/ui"
 )
 
 type Coord struct {
@@ -9,20 +11,20 @@ type Coord struct {
 }
 
 type UI struct {
-	ch   chan Coord
+	ch   <-chan []interface{}
 	done chan struct{}
 	ws   *WSServer
 }
 
-func New(w, h, d int, ch chan Coord) *UI {
+var _ ui.UI = &UI{}
+var _ ui.Grid3D = &UI{}
+
+func New(w, h, d int) *UI {
 	ws := NewWSServer()
-	log.Printf("Starting web server...")
 	ui := &UI{
-		ch:   ch,
 		done: make(chan struct{}),
 		ws:   ws,
 	}
-	go ui.startWeb(ws)
 	return ui
 }
 
@@ -31,5 +33,11 @@ func (ui *UI) Stop() {
 }
 
 func (ui *UI) Loop() {
+	log.Printf("Starting web server...")
+	go ui.startWeb(ui.ws)
 	<-ui.done
+}
+
+func (ui *UI) AddGrid3D(ch <-chan []interface{}) {
+	ui.ch = ch
 }

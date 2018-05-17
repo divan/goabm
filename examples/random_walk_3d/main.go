@@ -30,7 +30,7 @@ func NewWalker(abm *abm.ABM, x, y, z int) *Walker {
 
 func (w *Walker) Run(i int) {
 	rx := rand.Intn(6)
-	//	oldx, oldy, oldz := w.x, w.y, w.z
+	oldx, oldy, oldz := w.x, w.y, w.z
 	switch rx {
 	case 0:
 		w.x++
@@ -45,7 +45,7 @@ func (w *Walker) Run(i int) {
 	case 5:
 		w.z--
 	}
-	//w.abm.World().(*grid.Grid).Move(oldx, oldy, oldz, w.x, w.y, w.z)
+	w.abm.World().(*grid.Grid).Move(oldx, oldy, oldz, w.x, w.y, w.z)
 }
 
 func main() {
@@ -61,22 +61,19 @@ func main() {
 
 	a.LimitIterations(10000)
 
-	ch := make(chan ui.Coord)
+	ch := make(chan []interface{})
 	a.SetReportFunc(func(a *abm.ABM) {
-		ch <- ui.Coord{
-			X: cell.x,
-			Y: cell.y,
-			Z: cell.z,
-		}
+		ch <- g.Dump(func(a abm.Agent) bool { return a != nil })
 	})
 
 	go func() {
-		time.Sleep(2 * time.Second)
+		time.Sleep(1 * time.Second)
 		a.StartSimulation()
 		close(ch)
 	}()
 
-	ui3d := ui.New(w, h, d, ch)
+	ui3d := ui.New(w, h, d)
 	defer ui3d.Stop()
+	ui3d.AddGrid3D(ch)
 	ui3d.Loop()
 }

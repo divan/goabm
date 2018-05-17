@@ -11,39 +11,6 @@ import (
 	"github.com/divan/goabm/worlds/grid2d"
 )
 
-// Walker implements abm.Agent
-type Walker struct {
-	x, y         int
-	origx, origy int
-	abm          *abm.ABM
-}
-
-func NewWalker(abm *abm.ABM, x, y int) *Walker {
-	return &Walker{
-		origx: x,
-		origy: y,
-		x:     x,
-		y:     y,
-		abm:   abm,
-	}
-}
-
-func (w *Walker) Run(i int) {
-	rx := rand.Intn(4)
-	oldx, oldy := w.x, w.y
-	switch rx {
-	case 0:
-		w.x++
-	case 1:
-		w.y++
-	case 2:
-		w.x--
-	case 3:
-		w.y--
-	}
-	w.abm.World().(*grid.Grid).Move(oldx, oldy, w.x, w.y)
-}
-
 func main() {
 	rand.Seed(time.Now().UnixNano())
 	a := abm.New()

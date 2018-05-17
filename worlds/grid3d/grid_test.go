@@ -1,6 +1,9 @@
 package grid
 
-import "testing"
+import (
+	. "github.com/smartystreets/goconvey/convey"
+	"testing"
+)
 
 // TestAgent implements abm.Agent interface for tests.
 type TestAgent struct{}
@@ -14,40 +17,26 @@ func BenchmarkTick(b *testing.B) {
 	}
 }
 
-/*
-func TestGrid(t *testing.T) {
-	Convey("Grid 3.3 should init properly", t, func() {
-		g := New(3, 3)
-		So(g.Width(), ShouldEqual, 3)
-		So(g.Height(), ShouldEqual, 3)
-		So(len(g.cells), ShouldEqual, 3)
-
-		Convey("SetCell should update neigbors properly", func() {
-			a := &TestAgent{}
-			g.SetCell(1, 1, a)
-			fn := func(a abm.Agent) bool {
-				if a == nil {
-					return false
-				}
-
-			}
-			So(g.NumNeighbors(0, 0), ShouldEqual, 1)
-			So(g.NumNeighbors(1, 0), ShouldEqual, 1)
-			So(g.NumNeighbors(2, 0), ShouldEqual, 1)
-			So(g.NumNeighbors(0, 1), ShouldEqual, 1)
-			So(g.NumNeighbors(1, 1), ShouldEqual, 0)
-			So(g.NumNeighbors(2, 1), ShouldEqual, 1)
-			So(g.NumNeighbors(1, 2), ShouldEqual, 1)
-			So(g.NumNeighbors(1, 2), ShouldEqual, 1)
-			So(g.NumNeighbors(2, 2), ShouldEqual, 1)
-
-			g.Tick()
-			g.SetCell(2, 2, a)
-			So(g.NumNeighbors(1, 1), ShouldEqual, 1)
-			So(g.NumNeighbors(2, 1), ShouldEqual, 2)
-			So(g.NumNeighbors(1, 2), ShouldEqual, 2)
-			So(g.NumNeighbors(2, 2), ShouldEqual, 1)
-		})
+func TestIndexes(t *testing.T) {
+	Convey("Indexes should be calculated correctly", t, func() {
+		g := New(10, 10, 10)
+		So(g.idx(0, 1, 0), ShouldEqual, 10)
+		So(g.idx(1, 1, 1), ShouldEqual, 111)
+		So(g.idx(9, 9, 9), ShouldEqual, 999)
+	})
+	Convey("Reverse indexes should be calculated correctly", t, func() {
+		g := New(10, 10, 10)
+		x, y, z := g.xyz(999)
+		So(x, ShouldEqual, 9)
+		So(y, ShouldEqual, 9)
+		So(z, ShouldEqual, 9)
+		x, y, z = g.xyz(10)
+		So(x, ShouldEqual, 0)
+		So(y, ShouldEqual, 1)
+		So(z, ShouldEqual, 0)
+		x, y, z = g.xyz(2)
+		So(x, ShouldEqual, 2)
+		So(y, ShouldEqual, 0)
+		So(z, ShouldEqual, 0)
 	})
 }
-*/
