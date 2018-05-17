@@ -72,10 +72,10 @@ func TestStillLifes(t *testing.T) {
 }
 */
 
-func PrintDump(dump [][]bool, w, h int) {
+func PrintDump(dump [][]interface{}, w, h int) {
 	for i := 0; i < w; i++ {
 		for j := 0; j < h; j++ {
-			if dump[j][i] {
+			if dump[j][i].(bool) {
 				fmt.Printf("*")
 			} else {
 				fmt.Printf(" ")
