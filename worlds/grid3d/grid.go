@@ -52,8 +52,8 @@ func (g *Grid) Move(fromX, fromY, fromZ, toX, toY, toZ int) error {
 	g.mx.Lock()
 	defer g.mx.Unlock()
 
-	agent := g.cells[g.idx(fromZ, fromY, fromX)]
-	g.cells[g.idx(toZ, toY, toX)] = agent
+	agent := g.cells[g.idx(fromX, fromY, fromZ)]
+	g.cells[g.idx(toX, toY, toZ)] = agent
 	//g.cells[fromZ][fromY][fromX] = nil
 	return nil
 }
@@ -64,7 +64,7 @@ func (g *Grid) Cell(x, y, z int) abm.Agent {
 	}
 	g.mx.RLock()
 	defer g.mx.RUnlock()
-	return g.cellsPrev[g.idx(z, y, x)]
+	return g.cellsPrev[g.idx(x, y, z)]
 }
 
 func (g *Grid) SetCell(x, y, z int, c abm.Agent) {
@@ -72,7 +72,7 @@ func (g *Grid) SetCell(x, y, z int, c abm.Agent) {
 		panic(err)
 	}
 	g.mx.Lock()
-	g.cells[g.idx(z, y, x)] = c
+	g.cells[g.idx(x, y, z)] = c
 	g.mx.Unlock()
 }
 

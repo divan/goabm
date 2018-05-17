@@ -1,6 +1,7 @@
 package main
 
 import (
+	"flag"
 	"math/rand"
 	"time"
 
@@ -49,15 +50,21 @@ func (w *Walker) Run(i int) {
 }
 
 func main() {
+	var n = flag.Int("n", 1, "Number of agents so start")
+	var size = flag.Int("size", 100, "3D grid edge size")
+	flag.Parse()
+
 	rand.Seed(time.Now().UnixNano())
 	a := abm.New()
-	w, h, d := 100, 100, 100
+	w, h, d := *size, *size, *size
 	g := grid.New(w, h, d)
 	a.SetWorld(g)
 
-	cell := NewWalker(a, 50, 50, 50)
-	a.AddAgent(cell)
-	g.SetCell(cell.x, cell.y, cell.z, cell)
+	for i := 0; i < *n; i++ {
+		cell := NewWalker(a, rand.Intn(w), rand.Intn(h), rand.Intn(d))
+		a.AddAgent(cell)
+		g.SetCell(cell.x, cell.y, cell.z, cell)
+	}
 
 	a.LimitIterations(10000)
 
