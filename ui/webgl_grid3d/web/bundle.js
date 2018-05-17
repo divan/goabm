@@ -56,15 +56,18 @@ const gui = new dat.GUI();
 // Objects
 var geometry = new THREE.BufferGeometry();
 var MAX_POINTS = 100*100*100;
-positions = new Float32Array(MAX_POINTS * 3);
+var positions = new Float32Array(MAX_POINTS * 3);
+var colors = new Float32Array(MAX_POINTS);
 geometry.addAttribute('position', new THREE.BufferAttribute(positions, 3));
+geometry.addAttribute('color', new THREE.Float32BufferAttribute(colors, 3) )
+geometry.computeBoundingSphere();
 
 var pMaterial = new THREE.PointsMaterial({
-      color: 0xFFFFFF,
-      size: 2
-    });
+    color: 0xff0000,
+    size: 1
+});
 
-var particleSystem = new THREE.Points( geometry, pMaterial);
+var particleSystem = new THREE.Points(geometry, pMaterial);
 scene.add(particleSystem);
 
 function addData(data) {
@@ -73,6 +76,7 @@ function addData(data) {
         positions[i * 3 + 0] = data[i].X;
         positions[i * 3 + 1] = data[i].Y;
         positions[i * 3 + 2] = data[i].Z;
+
     }
     particleSystem.geometry.setDrawRange(0, data.length);
     particleSystem.geometry.attributes.position.needsUpdate = true;
