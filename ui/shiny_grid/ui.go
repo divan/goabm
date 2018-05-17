@@ -27,8 +27,8 @@ var _ ui.UI = &UI{}
 var _ ui.Grid = &UI{}
 
 const (
-	winWidth  = 1800
-	winHeight = 1000
+	winWidth  = 2000
+	winHeight = 1400
 )
 
 func New(w, h int) *UI {
