@@ -29,7 +29,7 @@ func NewWalker(abm *abm.ABM, x, y, z int) *Walker {
 	}
 }
 
-func (w *Walker) Run(i int) {
+func (w *Walker) Run() {
 	rx := rand.Intn(6)
 	oldx, oldy, oldz := w.x, w.y, w.z
 	switch rx {

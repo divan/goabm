@@ -64,9 +64,7 @@ func (h *Human) Age() int {
 }
 
 // Run satisfies Agent interface.
-//
-// i effectively means years.
-func (h *Human) Run(i int) {
+func (h *Human) Run() {
 	h.age++
 	h.updateAgeRange()
 

@@ -5,7 +5,7 @@ import (
 )
 
 type Agent interface {
-	Run(i int)
+	Run()
 }
 
 func CopyAgent(src Agent) Agent {

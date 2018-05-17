@@ -8,6 +8,7 @@ type ABM struct {
 	mx     sync.RWMutex
 	agents []Agent
 
+	i     int // current iteration
 	limit int
 
 	world      World
@@ -57,8 +58,16 @@ func (a *ABM) Limit() int {
 	return a.limit
 }
 
+// Iteration returns current iteration (age, generation).
+func (a *ABM) Iteration() int {
+	a.mx.RLock()
+	defer a.mx.RUnlock()
+	return a.i
+}
+
 func (a *ABM) StartSimulation() {
 	for i := 0; i < a.Limit(); i++ {
+		a.i = i
 		if a.World() != nil {
 			a.World().Tick()
 		}
@@ -67,7 +76,7 @@ func (a *ABM) StartSimulation() {
 		for j := 0; j < a.AgentsCount(); j++ {
 			wg.Add(1)
 			go func(wg *sync.WaitGroup, i, j int) {
-				a.agents[j].Run(i)
+				a.agents[j].Run()
 				wg.Done()
 			}(&wg, i, j)
 		}

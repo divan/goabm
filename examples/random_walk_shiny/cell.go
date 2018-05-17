@@ -24,7 +24,7 @@ func NewWalker(abm *abm.ABM, x, y int) *Walker {
 	}
 }
 
-func (w *Walker) Run(i int) {
+func (w *Walker) Run() {
 	rx := rand.Intn(4)
 	oldx, oldy := w.x, w.y
 	switch rx {

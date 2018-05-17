@@ -8,7 +8,7 @@ import (
 // TestAgent implements abm.Agent interface for tests.
 type TestAgent struct{}
 
-func (*TestAgent) Run(i int) {}
+func (*TestAgent) Run() {}
 
 func TestTick(t *testing.T) {
 	Convey("Tick should update double buffer", t, func() {
