@@ -69,7 +69,6 @@ func (ws *WSServer) sendMsg(c *websocket.Conn, msg *WSResponse) {
 
 	err = c.WriteMessage(1, data)
 	if err != nil {
-		log.Println("write:", err)
 		c = nil
 		return
 	}

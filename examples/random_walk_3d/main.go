@@ -51,7 +51,7 @@ func (w *Walker) Run(i int) {
 
 func main() {
 	var n = flag.Int("n", 1, "Number of agents so start")
-	var size = flag.Int("size", 100, "3D grid edge size")
+	var size = flag.Int("size", 50, "3D grid edge size")
 	flag.Parse()
 
 	rand.Seed(time.Now().UnixNano())
