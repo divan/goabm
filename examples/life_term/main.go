@@ -29,8 +29,6 @@ func main() {
 		}
 	}
 
-	a.LimitIterations(1000)
-
 	ch := make(chan [][]interface{})
 	a.SetReportFunc(func(a *abm.ABM) {
 		ch <- grid2D.Dump(life.IsAlive)

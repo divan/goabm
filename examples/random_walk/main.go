@@ -1,12 +1,14 @@
 package main
 
 import (
+	"log"
 	"math/rand"
 	"syscall"
 	"time"
 	"unsafe"
 
 	"github.com/divan/goabm/abm"
+	"github.com/divan/goabm/models/random_walker"
 	"github.com/divan/goabm/ui/term_grid"
 	"github.com/divan/goabm/worlds/grid2d"
 )
@@ -18,9 +20,12 @@ func main() {
 	grid2D := grid.New(w, h)
 	a.SetWorld(grid2D)
 
-	cell := NewWalker(a, rand.Intn(w-1), rand.Intn(h-1))
+	cell, err := walker.New(a, rand.Intn(w-1), rand.Intn(h-1), true)
+	if err != nil {
+		log.Fatal(err)
+	}
 	a.AddAgent(cell)
-	grid2D.SetCell(cell.x, cell.y, cell)
+	grid2D.SetCell(cell.X(), cell.Y(), cell)
 
 	a.LimitIterations(1000)
 

@@ -38,14 +38,20 @@ func (ui *UI) AddChart(name string, values <-chan float64) {
 	lc := termui.NewLineChart()
 	lc.BorderLabel = name
 	lc.Data = []float64{}
-	lc.Height = termui.TermHeight()
 	lc.AxesColor = termui.ColorWhite
 	lc.LineColor = termui.ColorYellow | termui.AttrBold
 
 	ui.charts = append(ui.charts, lc)
-	ui.createLayout()
+	ui.resizeCharts()
 
 	go ui.updateChartData(lc, values)
+}
+
+func (ui *UI) resizeCharts() {
+	count := len(ui.charts)
+	for i := range ui.charts {
+		ui.charts[i].Height = termui.TermHeight() / count
+	}
 }
 
 func (ui *UI) createLayout() {
@@ -85,6 +91,7 @@ func (ui *UI) handleKeys() {
 
 // Loop starts event loop and blocks.
 func (ui *UI) Loop() {
+	ui.createLayout()
 	termui.Loop()
 }
 

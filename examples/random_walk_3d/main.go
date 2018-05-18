@@ -46,12 +46,15 @@ func (w *Walker) Run() {
 	case 5:
 		w.z--
 	}
-	w.abm.World().(*grid.Grid).Move(oldx, oldy, oldz, w.x, w.y, w.z)
+	err := w.abm.World().(*grid.Grid).Copy(oldx, oldy, oldz, w.x, w.y, w.z)
+	if err != nil {
+		w.x, w.y, w.z = oldx, oldy, oldz
+	}
 }
 
 func main() {
 	var n = flag.Int("n", 1, "Number of agents so start")
-	var size = flag.Int("size", 50, "3D grid edge size")
+	var size = flag.Int("size", 100, "3D grid edge size")
 	flag.Parse()
 
 	rand.Seed(time.Now().UnixNano())

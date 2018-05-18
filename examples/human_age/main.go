@@ -12,13 +12,23 @@ func main() {
 
 	a.LimitIterations(1000)
 
-	alivesCh := make(chan float64)
+	alivesCh, infantsCh, retiredCh := make(chan float64), make(chan float64), make(chan float64)
 	a.SetReportFunc(func(a *abm.ABM) {
 		alive := a.Count(func(agent abm.Agent) bool {
 			h := agent.(*human.Human)
 			return h.IsAlive()
 		})
+		infants := a.Count(func(agent abm.Agent) bool {
+			h := agent.(*human.Human)
+			return h.Age() < 5
+		})
+		retired := a.Count(func(agent abm.Agent) bool {
+			h := agent.(*human.Human)
+			return h.Age() > 60
+		})
 		alivesCh <- float64(alive)
+		infantsCh <- float64(infants)
+		retiredCh <- float64(retired)
 	})
 
 	go a.StartSimulation()
@@ -27,5 +37,7 @@ func main() {
 	defer ui.Stop()
 
 	ui.AddChart("Humans Alive", alivesCh)
+	ui.AddChart("Infants", infantsCh)
+	ui.AddChart("Retired", retiredCh)
 	ui.Loop()
 }

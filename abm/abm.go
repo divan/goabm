@@ -15,8 +15,12 @@ type ABM struct {
 	reportFunc func(*ABM)
 }
 
+// New creates new ABM simulation engine with default
+// parameters.
 func New() *ABM {
-	return &ABM{}
+	return &ABM{
+		limit: 1000,
+	}
 }
 
 func (a *ABM) SetWorld(w World) {

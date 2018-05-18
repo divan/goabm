@@ -49,7 +49,22 @@ func (g *Grid) Move(fromX, fromY, toX, toY int) error {
 
 	agent := g.cells[g.idx(fromX, fromY)]
 	g.cells[g.idx(toX, toY)] = agent
-	//g.cells[fromY][fromX] = nil
+	g.cells[g.idx(fromX, fromY)] = nil
+	return nil
+}
+
+func (g *Grid) Copy(fromX, fromY, toX, toY int) error {
+	if err := g.validateXY(fromX, fromY); err != nil {
+		return err
+	}
+	if err := g.validateXY(toX, toY); err != nil {
+		return err
+	}
+	g.mx.Lock()
+	defer g.mx.Unlock()
+
+	agent := g.cells[g.idx(fromX, fromY)]
+	g.cells[g.idx(toX, toY)] = agent
 	return nil
 }
 
