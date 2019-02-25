@@ -18,7 +18,7 @@ var _ ui.UI = &UI{}
 var _ ui.Grid = &UI{}
 
 func New() *UI {
-	w, h := termSize()
+	w, h := TermSize()
 	return &UI{
 		width:  w,
 		height: h,
@@ -60,7 +60,7 @@ type winsize struct {
 	Ypixel uint16
 }
 
-func termSize() (int, int) {
+func TermSize() (int, int) {
 	ws := &winsize{}
 	retCode, _, errno := syscall.Syscall(syscall.SYS_IOCTL,
 		uintptr(syscall.Stdin),
